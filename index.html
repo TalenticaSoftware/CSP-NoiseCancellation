@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- <meta http-equiv="Content-Security-Policy" content="font-src 'self'"> -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@1,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@1,600&display=swap" rel="stylesheet">
+
+  <style>
+    @font-face {
+      font-family: 'Open Sans';
+      font-style: italic;
+      font-weight: 500;
+      font-stretch: 100%;
+      font-display: swap;
+      src: url(https://fonts.gstatic.com/s/opensans/v34/memQYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWq8tWZ0Pw86hd0Rk_RkWV0ewIMUdjFXmSU_.woff2) format('woff2');
+      unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div style="font-family: 'Open Sans', sans-serif;">
+    <h1>Hello world</h1>
+  </div>
+  <div>
+    <h1>Hello world</h1>
+  </div>
+
+
+  <!-- <div class="box">
+    <img
+      src="https://images.unsplash.com/photo-1535089780340-34cc939f9996?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
+      alt="" />
+  </div> -->
+
+  <script>
+
+    const captureViolation = async () => {
+      if ('SecurityPolicyViolationEvent' in window) { // Check browser support
+        window.addEventListener('securitypolicyviolation', function (e) {
+          navigator.serviceWorker.controller.postMessage({
+            'document-uri': e.documentURI,
+            'referrer': e.referrer,
+            'violated-directive': e.violatedDirective,
+            'effective-directive': e.effectiveDirective,
+            'original-policy': e.originalPolicy,
+            'disposition': e.disposition,
+            'blockeduri': e.blockedURI,
+            'line-number': e.lineNumber,
+            'source-file': e.sourceFile,
+            'status-code': e.statusCode,
+            'script-sample': e.sample
+          });
+
+        });
+      }
+    }
+
+    const registerServiceWorker = async () => {
+      if ("serviceWorker" in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register("/sw.js", {
+            scope: "/",
+          });
+          await waitUntil(() => registration.active);
+          if (registration.installing) {
+            console.log("Service worker installing");
+          } else if (registration.waiting) {
+            console.log("Service worker installed");
+          } else if (registration.active) {
+            console.log("Service worker active");
+          }
+        } catch (error) {
+          console.error(`Registration failed with ${error}`);
+        }
+      }
+    };
+    registerServiceWorker();
+    captureViolation();
+
+    const waitUntil = (condition, checkInterval = 100) => {
+      return new Promise(resolve => {
+        let interval = setInterval(() => {
+          if (!condition()) return;
+          clearInterval(interval);
+          resolve();
+        }, checkInterval)
+      })
+    }
+  </script>
+</body>
+
+</html>
